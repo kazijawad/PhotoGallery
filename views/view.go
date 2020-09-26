@@ -1,12 +1,25 @@
 package views
 
-import "text/template"
+import (
+	"html/template"
+	"path/filepath"
+)
+
+var (
+	LayoutDir   string = "views/layout/"
+	TemplateExt string = ".gohtml"
+)
+
+func layoutFiles() []string {
+	files, err := filepath.Glob(LayoutDir + "*" + TemplateExt)
+	if err != nil {
+		panic(err)
+	}
+	return files
+}
 
 func NewView(layout string, files ...string) *View {
-	files = append(files,
-		"views/layout/footer.gohtml",
-		"views/layout/bootstrap.gohtml",
-		"views/layout/navbar.gohtml")
+	files = append(files, layoutFiles()...)
 	t, err := template.ParseFiles(files...)
 	if err != nil {
 		panic(err)
