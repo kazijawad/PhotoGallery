@@ -2,14 +2,19 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
+var homeTemplate *template.Template
+
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprintf(w, "<h1>Welcome to my awesome site!</h1>")
+	if err := homeTemplate.Execute(w, nil); err != nil {
+		panic(err)
+	}
 }
 
 func contact(w http.ResponseWriter, r *http.Request) {
@@ -22,14 +27,19 @@ func faq(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>FAQ</h1><h3>What is this?</h3><h5>This is a web app written in Go.</h5>")
 }
 
-func error(w http.ResponseWriter, r *http.Request) {
+func notFound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusNotFound)
 	fmt.Fprintf(w, "<h1>Woops, this page doesn't exist!</h1>")
 }
 
 func main() {
-	var h http.Handler = http.HandlerFunc(error)
+	var err error
+	homeTemplate, err = template.ParseFiles("views/home.gohtml")
+	if err != nil {
+		panic(err)
+	}
+	var h http.Handler = http.HandlerFunc(notFound)
 	r := mux.NewRouter()
 	r.NotFoundHandler = h
 	r.HandleFunc("/", home)
