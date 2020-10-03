@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/schema"
 	"github.com/kazijawad/Photoshoot/views"
 )
 
@@ -27,6 +28,11 @@ func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type SignUpForm struct {
+	Email    string `scheme:"email"`
+	Password string `schema:"password"`
+}
+
 // Create is used to process the signup form when a user
 // tries to create a new user account.
 //
@@ -35,6 +41,10 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		panic(err)
 	}
-	fmt.Fprintln(w, r.PostForm["email"][0])
-	fmt.Fprintln(w, r.PostForm["password"][0])
+	dec := schema.NewDecoder()
+	form := SignUpForm{}
+	if err := dec.Decode(&form, r.PostForm); err != nil {
+		panic(err)
+	}
+	fmt.Fprintln(w, form)
 }
