@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/kazijawad/Photoshoot/controllers"
-	"github.com/kazijawad/Photoshoot/models"
+	"github.com/kazijawad/PhotoGallery/controllers"
+	"github.com/kazijawad/PhotoGallery/models"
 )
 
 const (

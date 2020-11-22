@@ -1,6 +1,6 @@
 package controllers
 
-import "github.com/kazijawad/Photoshoot/views"
+import "github.com/kazijawad/PhotoGallery/views"
 
 func NewStatic() *Static {
 	return &Static{
