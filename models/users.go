@@ -46,6 +46,10 @@ var (
 	// ErrPasswordTooShort is returned when a user tries to set
 	// a password that is less than 8 characters long.
 	ErrPasswordTooShort = errors.New("models: password must be at least 8 characters long")
+
+	// ErrPasswordRequired is returned when a create is attempted
+	// without a user password provided.
+	ErrPasswordRequired = errors.New("models: password is required")
 )
 
 type User struct {
@@ -191,8 +195,10 @@ func (uv *userValidator) ByRemember(token string) (*User, error) {
 func (uv *userValidator) Create(user *User) error {
 	err := runUserValFns(
 		user,
+		uv.passwordRequired,
 		uv.passwordMinLength,
 		uv.bcryptPassword,
+		uv.passwordHashRequired,
 		uv.setRememberIfUnset,
 		uv.hmacRemember,
 		uv.normalizeEmail,
@@ -212,6 +218,7 @@ func (uv *userValidator) Update(user *User) error {
 		user,
 		uv.passwordMinLength,
 		uv.bcryptPassword,
+		uv.passwordHashRequired,
 		uv.hmacRemember,
 		uv.normalizeEmail,
 		uv.requireEmail,
@@ -301,6 +308,13 @@ func (uv *userValidator) emailIsAvail(user *User) error {
 	return nil
 }
 
+func (uv *userValidator) passwordRequired(user *User) error {
+	if user.Password == "" {
+		return ErrPasswordRequired
+	}
+	return nil
+}
+
 func (uv *userValidator) passwordMinLength(user *User) error {
 	if user.Password == "" {
 		return nil
@@ -325,6 +339,13 @@ func (uv *userValidator) bcryptPassword(user *User) error {
 	}
 	user.PasswordHash = string(hashedBytes)
 	user.Password = ""
+	return nil
+}
+
+func (uv *userValidator) passwordHashRequired(user *User) error {
+	if user.PasswordHash == "" {
+		return ErrPasswordRequired
+	}
 	return nil
 }
 
