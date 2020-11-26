@@ -27,10 +27,6 @@ var (
 	// to a method like Delete.
 	ErrIDInvalid = errors.New("models: ID provided was invalid")
 
-	// ErrPasswordIncorrect is returned when an invalid password
-	// is used when attempting to authenticate a user.
-	ErrPasswordIncorrect = errors.New("models: incorrect password provided")
-
 	// ErrEmailRequired is returned when an email address is
 	// not provided when creating a user
 	ErrEmailRequired = errors.New("models: email address is required")
@@ -42,6 +38,14 @@ var (
 	// ErrEmailTaken is returned when an update or create is attempted
 	// with an email address that is already in use.
 	ErrEmailTaken = errors.New("models: email address is already taken")
+
+	// ErrPasswordIncorrect is returned when an invalid password
+	// is used when attempting to authenticate a user.
+	ErrPasswordIncorrect = errors.New("models: incorrect password provided")
+
+	// ErrPasswordTooShort is returned when a user tries to set
+	// a password that is less than 8 characters long.
+	ErrPasswordTooShort = errors.New("models: password must be at least 8 characters long")
 )
 
 type User struct {
@@ -187,6 +191,7 @@ func (uv *userValidator) ByRemember(token string) (*User, error) {
 func (uv *userValidator) Create(user *User) error {
 	err := runUserValFns(
 		user,
+		uv.passwordMinLength,
 		uv.bcryptPassword,
 		uv.setRememberIfUnset,
 		uv.hmacRemember,
@@ -205,6 +210,7 @@ func (uv *userValidator) Create(user *User) error {
 func (uv *userValidator) Update(user *User) error {
 	err := runUserValFns(
 		user,
+		uv.passwordMinLength,
 		uv.bcryptPassword,
 		uv.hmacRemember,
 		uv.normalizeEmail,
@@ -227,23 +233,6 @@ func (uv *userValidator) Delete(id uint) error {
 		return err
 	}
 	return uv.UserDB.Delete(id)
-}
-
-// bcryptPassword will hash a user's password with an
-// app-wide pepper and bcrypt, which salts for us.
-func (uv *userValidator) bcryptPassword(user *User) error {
-	if user.Password == "" {
-		return nil
-	}
-
-	pwBytes := []byte(user.Password + userPwPepper)
-	hashedBytes, err := bcrypt.GenerateFromPassword(pwBytes, bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-	user.PasswordHash = string(hashedBytes)
-	user.Password = ""
-	return nil
 }
 
 func (uv *userValidator) hmacRemember(user *User) error {
@@ -309,6 +298,33 @@ func (uv *userValidator) emailIsAvail(user *User) error {
 	if user.ID != existing.ID {
 		return ErrEmailTaken
 	}
+	return nil
+}
+
+func (uv *userValidator) passwordMinLength(user *User) error {
+	if user.Password == "" {
+		return nil
+	}
+	if len(user.Password) < 8 {
+		return ErrPasswordTooShort
+	}
+	return nil
+}
+
+// bcryptPassword will hash a user's password with an
+// app-wide pepper and bcrypt, which salts for us.
+func (uv *userValidator) bcryptPassword(user *User) error {
+	if user.Password == "" {
+		return nil
+	}
+
+	pwBytes := []byte(user.Password + userPwPepper)
+	hashedBytes, err := bcrypt.GenerateFromPassword(pwBytes, bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.PasswordHash = string(hashedBytes)
+	user.Password = ""
 	return nil
 }
 
