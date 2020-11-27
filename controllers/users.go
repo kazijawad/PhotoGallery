@@ -9,6 +9,17 @@ import (
 	"github.com/kazijawad/PhotoGallery/views"
 )
 
+type SignupForm struct {
+	Name     string `schema:"name"`
+	Email    string `scheme:"email"`
+	Password string `schema:"password"`
+}
+
+type LoginForm struct {
+	Email    string `schema:"email"`
+	Password string `schema:"password"`
+}
+
 type Users struct {
 	NewView   *views.View
 	LoginView *views.View
@@ -32,15 +43,17 @@ func NewUsers(us models.UserService) *Users {
 //
 // GET /signup
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
-	if err := u.NewView.Render(w, nil); err != nil {
+	type Alert struct {
+		Level   string
+		Message string
+	}
+	alert := Alert{
+		Level:   "success",
+		Message: "Successfully rendered a dynamic alert!",
+	}
+	if err := u.NewView.Render(w, alert); err != nil {
 		panic(err)
 	}
-}
-
-type SignupForm struct {
-	Name     string `schema:"name"`
-	Email    string `scheme:"email"`
-	Password string `schema:"password"`
 }
 
 // Create is used to process the signup form when a user
@@ -68,11 +81,6 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/cookietest", http.StatusFound)
-}
-
-type LoginForm struct {
-	Email    string `schema:"email"`
-	Password string `schema:"password"`
 }
 
 // Login is used to process the login form when a user
