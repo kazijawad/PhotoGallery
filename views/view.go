@@ -12,6 +12,11 @@ var (
 	TemplateExt string = ".gohtml"
 )
 
+type View struct {
+	Template *template.Template
+	Layout   string
+}
+
 func NewView(layout string, files ...string) *View {
 	addTemplatePath(files)
 	addTemplateExt(files)
@@ -26,13 +31,16 @@ func NewView(layout string, files ...string) *View {
 	}
 }
 
-type View struct {
-	Template *template.Template
-	Layout   string
-}
-
 func (v *View) Render(w http.ResponseWriter, data interface{}) error {
 	w.Header().Set("Content-Type", "text/html")
+	switch data.(type) {
+	case Data:
+		// Do Nothing
+	default:
+		data = Data{
+			Yield: data,
+		}
+	}
 	return v.Template.ExecuteTemplate(w, v.Layout, data)
 }
 
