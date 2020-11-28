@@ -3,7 +3,9 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/kazijawad/PhotoGallery/context"
 	"github.com/kazijawad/PhotoGallery/models"
 	"github.com/kazijawad/PhotoGallery/views"
@@ -48,4 +50,23 @@ func (g *Galleries) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, gallery)
+}
+
+// Show GET /galleries/:id
+func (g *Galleries) Show(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid Gallery ID", http.StatusFound)
+		return
+	}
+	_ = id
+
+	gallery := models.Gallery{
+		Title: "A temporary fake gallery with ID: " + idStr,
+	}
+	var vd views.Data
+	vd.Yield = gallery
+	g.ShowView.Render(w, vd)
 }
