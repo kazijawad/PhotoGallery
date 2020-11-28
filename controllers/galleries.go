@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/kazijawad/PhotoGallery/context"
 	"github.com/kazijawad/PhotoGallery/models"
 	"github.com/kazijawad/PhotoGallery/views"
 )
@@ -33,8 +34,10 @@ func (g *Galleries) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user := context.User(r.Context())
 	gallery := models.Gallery{
-		Title: form.Title,
+		Title:  form.Title,
+		UserID: user.ID,
 	}
 	if err := g.gs.Create(&gallery); err != nil {
 		vd.SetAlert(err)
