@@ -28,14 +28,24 @@ func main() {
 
 	staticC := controllers.NewStatic()
 	usersC := controllers.NewUsers(services.User)
+	galleriesC := controllers.NewGalleries(services.Gallery)
 
 	r := mux.NewRouter()
+
+	// Static Routes
 	r.Handle("/", staticC.Home).Methods("GET")
 	r.Handle("/contact", staticC.Contact).Methods("GET")
+
+	// User Routes
 	r.HandleFunc("/signup", usersC.New).Methods("GET")
 	r.HandleFunc("/signup", usersC.Create).Methods("POST")
 	r.Handle("/login", usersC.LoginView).Methods("GET")
 	r.HandleFunc("/login", usersC.Login).Methods("POST")
 	r.HandleFunc("/cookietest", usersC.CookieTest).Methods("GET")
+
+	// Gallery Routes
+	r.Handle("/galleries/new", galleriesC.New).Methods("GET")
+
+	fmt.Println("Starting the server on :3000...")
 	http.ListenAndServe(":3000", r)
 }
