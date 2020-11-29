@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -11,13 +12,17 @@ import (
 )
 
 const (
+	// ShowGallery is the named route for /galleries/:id.
 	ShowGallery = "show_gallery"
 )
 
+// GalleryForm stores the form values related to a single Gallery
+// following gorilla/schema format.
 type GalleryForm struct {
 	Title string `schema:"title"`
 }
 
+// Galleries is the controller related to the Galleries viewmodel.
 type Galleries struct {
 	New      *views.View
 	ShowView *views.View
@@ -26,6 +31,10 @@ type Galleries struct {
 	r        *mux.Router
 }
 
+// NewGalleries is used to create a new Galleries controller.
+// This function will panic if the templates are not
+// parsed correctly, and should only be used during
+// initial setup.
 func NewGalleries(gs models.GalleryService, r *mux.Router) *Galleries {
 	return &Galleries{
 		New:      views.NewView("bootstrap", "galleries/new"),
@@ -36,6 +45,18 @@ func NewGalleries(gs models.GalleryService, r *mux.Router) *Galleries {
 	}
 }
 
+// Show is a GET request at /galleries/:id.
+func (g *Galleries) Show(w http.ResponseWriter, r *http.Request) {
+	gallery, err := g.galleryByID(w, r)
+	if err != nil {
+		return
+	}
+	var vd views.Data
+	vd.Yield = gallery
+	g.ShowView.Render(w, vd)
+}
+
+// Create is a POST request at /galleries/:id.
 func (g *Galleries) Create(w http.ResponseWriter, r *http.Request) {
 	var vd views.Data
 	var form GalleryForm
@@ -64,18 +85,7 @@ func (g *Galleries) Create(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url.Path, http.StatusFound)
 }
 
-// Show is a GET /galleries/:id.
-func (g *Galleries) Show(w http.ResponseWriter, r *http.Request) {
-	gallery, err := g.galleryByID(w, r)
-	if err != nil {
-		return
-	}
-	var vd views.Data
-	vd.Yield = gallery
-	g.ShowView.Render(w, vd)
-}
-
-// Edit is a GET request to /galleries/:id/edit.
+// Edit is a GET request at /galleries/:id/edit.
 func (g *Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 	gallery, err := g.galleryByID(w, r)
 	if err != nil {
@@ -91,7 +101,7 @@ func (g *Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 	g.EditView.Render(w, vd)
 }
 
-// Update is a POST request to /galleries/:id/update.
+// Update is a POST request at /galleries/:id/update.
 func (g *Galleries) Update(w http.ResponseWriter, r *http.Request) {
 	gallery, err := g.galleryByID(w, r)
 	if err != nil {
@@ -125,9 +135,35 @@ func (g *Galleries) Update(w http.ResponseWriter, r *http.Request) {
 	g.EditView.Render(w, vd)
 }
 
+// Delete is a POST request at /galleries/:id/delete.
+func (g *Galleries) Delete(w http.ResponseWriter, r *http.Request) {
+	gallery, err := g.galleryByID(w, r)
+	if err != nil {
+		return
+	}
+	user := context.User(r.Context())
+	if gallery.UserID != user.ID {
+		http.Error(w, "You do not have permission to edit this gallery.", http.StatusForbidden)
+		return
+	}
+
+	var vd views.Data
+	err = g.gs.Delete(gallery.ID)
+	if err != nil {
+		vd.SetAlert(err)
+		vd.Yield = gallery
+		g.EditView.Render(w, vd)
+		return
+	}
+	// TODO: We will eventually want to redirect to the index
+	// page that lists all galleries this user owns, but for
+	// now a success message will suffice.
+	fmt.Fprintln(w, "Successfully deleted!")
+}
+
 // galleryByID will parse the "id" variable from the
 // request path using gorilla/mux and then use that ID to
-// retrieve the gallery from the GalleryService
+// retrieve the gallery from the GalleryService.
 //
 // galleryByID will return an error if one occurs, but it
 // will also render the error with an http.Error function
