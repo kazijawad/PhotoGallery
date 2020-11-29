@@ -58,14 +58,21 @@ func (g *Galleries) Show(w http.ResponseWriter, r *http.Request) {
 	idStr := vars["id"]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "Invalid Gallery ID", http.StatusFound)
+		http.Error(w, "Invalid Gallery ID", http.StatusNotFound)
 		return
 	}
-	_ = id
 
-	gallery := models.Gallery{
-		Title: "A temporary fake gallery with ID: " + idStr,
+	gallery, err := g.gs.ByID(uint(id))
+	if err != nil {
+		switch err {
+		case models.ErrNotFound:
+			http.Error(w, "Gallery Not Found", http.StatusNotFound)
+		default:
+			http.Error(w, "Whoops! Something went wrong.", http.StatusInternalServerError)
+		}
+		return
 	}
+
 	var vd views.Data
 	vd.Yield = gallery
 	g.ShowView.Render(w, vd)
