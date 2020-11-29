@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -12,10 +11,21 @@ import (
 )
 
 const (
+	// IndexGalleries is the named route for all the galleries
+	// related to the given user.
+	//
+	// GET /galleries
+	IndexGalleries = "index_galleries"
+
 	// ShowGallery is the named route for a single gallery.
 	//
 	// GET /galleries/:id
 	ShowGallery = "show_gallery"
+
+	// EditGallery is the named route for editing a gallery.
+	//
+	// GET /galleries/:id/edit
+	EditGallery = "edit_gallery"
 )
 
 // GalleryForm stores the form values related to a single gallery
@@ -47,6 +57,23 @@ func NewGalleries(gs models.GalleryService, r *mux.Router) *Galleries {
 		gs:        gs,
 		r:         r,
 	}
+}
+
+// Index is used to render all the galleries for the
+// given user.
+//
+// GET /galleries
+func (g *Galleries) Index(w http.ResponseWriter, r *http.Request) {
+	user := context.User(r.Context())
+	galleries, err := g.gs.ByUserID(user.ID)
+	if err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	var vd views.Data
+	vd.Yield = galleries
+	g.IndexView.Render(w, vd)
 }
 
 // Show is used to render a single gallery if the user
@@ -87,7 +114,7 @@ func (g *Galleries) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url, err := g.r.Get(ShowGallery).URL("id", strconv.Itoa(int(gallery.ID)))
+	url, err := g.r.Get(EditGallery).URL("id", strconv.Itoa(int(gallery.ID)))
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
@@ -174,27 +201,12 @@ func (g *Galleries) Delete(w http.ResponseWriter, r *http.Request) {
 		g.EditView.Render(w, vd)
 		return
 	}
-	// TODO: We will eventually want to redirect to the index
-	// page that lists all galleries this user owns, but for
-	// now a success message will suffice.
-	fmt.Fprintln(w, "Successfully deleted!")
-}
-
-// Index is used to render all the galleries for the
-// given user.
-//
-// GET /galleries
-func (g *Galleries) Index(w http.ResponseWriter, r *http.Request) {
-	user := context.User(r.Context())
-	galleries, err := g.gs.ByUserID(user.ID)
+	url, err := g.r.Get(IndexGalleries).URL()
 	if err != nil {
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-
-	var vd views.Data
-	vd.Yield = galleries
-	g.IndexView.Render(w, vd)
+	http.Redirect(w, r, url.Path, http.StatusFound)
 }
 
 // galleryByID will parse the "id" variable from the
