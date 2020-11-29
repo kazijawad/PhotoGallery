@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/schema"
 )
 
+// parseForm uses gorilla/schema to decode form data.
 func parseForm(r *http.Request, dst interface{}) error {
 	if err := r.ParseForm(); err != nil {
 		return err

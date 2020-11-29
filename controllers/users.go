@@ -9,17 +9,24 @@ import (
 	"github.com/kazijawad/PhotoGallery/views"
 )
 
+// SignupForm stores the form values related to when a user
+// tries create a new user account following gorilla/schema
+// format.
 type SignupForm struct {
 	Name     string `schema:"name"`
 	Email    string `scheme:"email"`
 	Password string `schema:"password"`
 }
 
+// LoginForm stores the form values related to when a user
+// tries to log in as an existing user (via email & pw)
+// following gorilla/schema format.
 type LoginForm struct {
 	Email    string `schema:"email"`
 	Password string `schema:"password"`
 }
 
+// Users is the controller related to the Users viewmodel.
 type Users struct {
 	NewView   *views.View
 	LoginView *views.View
@@ -114,7 +121,9 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/cookietest", http.StatusFound)
 }
 
-// CookieTest is used to display cookies set on the current user
+// CookieTest is used to display cookies set on the current user.
+//
+// GET /cookietest
 func (u *Users) CookieTest(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("remember_token")
 	if err != nil {
@@ -129,7 +138,7 @@ func (u *Users) CookieTest(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, user)
 }
 
-// signIn is used to sign the given user in via cookies
+// signIn is used to sign the given user in via cookies.
 func (u *Users) signIn(w http.ResponseWriter, user *models.User) error {
 	if user.Remember == "" {
 		token, err := rand.RememberToken()

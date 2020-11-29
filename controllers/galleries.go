@@ -12,11 +12,13 @@ import (
 )
 
 const (
-	// ShowGallery is the named route for /galleries/:id.
+	// ShowGallery is the named route for a single gallery.
+	//
+	// GET /galleries/:id
 	ShowGallery = "show_gallery"
 )
 
-// GalleryForm stores the form values related to a single Gallery
+// GalleryForm stores the form values related to a single gallery
 // following gorilla/schema format.
 type GalleryForm struct {
 	Title string `schema:"title"`
@@ -45,7 +47,10 @@ func NewGalleries(gs models.GalleryService, r *mux.Router) *Galleries {
 	}
 }
 
-// Show is a GET request at /galleries/:id.
+// Show is used to render a single gallery if the user
+// has permission.
+//
+// GET /galleries/:id
 func (g *Galleries) Show(w http.ResponseWriter, r *http.Request) {
 	gallery, err := g.galleryByID(w, r)
 	if err != nil {
@@ -56,7 +61,10 @@ func (g *Galleries) Show(w http.ResponseWriter, r *http.Request) {
 	g.ShowView.Render(w, vd)
 }
 
-// Create is a POST request at /galleries/:id.
+// Create is used to process the gallery form when a user
+// creates a new gallery.
+//
+// POST /galleries/:id
 func (g *Galleries) Create(w http.ResponseWriter, r *http.Request) {
 	var vd views.Data
 	var form GalleryForm
@@ -85,7 +93,10 @@ func (g *Galleries) Create(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url.Path, http.StatusFound)
 }
 
-// Edit is a GET request at /galleries/:id/edit.
+// Edit is used to render the form where a user can
+// edit a gallery.
+//
+// GET /galleries/:id/edit
 func (g *Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 	gallery, err := g.galleryByID(w, r)
 	if err != nil {
@@ -101,7 +112,10 @@ func (g *Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 	g.EditView.Render(w, vd)
 }
 
-// Update is a POST request at /galleries/:id/update.
+// Update is used to process the gallery form when a user
+// updates a gallery.
+//
+// POST /galleries/:id/update
 func (g *Galleries) Update(w http.ResponseWriter, r *http.Request) {
 	gallery, err := g.galleryByID(w, r)
 	if err != nil {
@@ -135,7 +149,10 @@ func (g *Galleries) Update(w http.ResponseWriter, r *http.Request) {
 	g.EditView.Render(w, vd)
 }
 
-// Delete is a POST request at /galleries/:id/delete.
+// Delete is used to process the gallery form when a user
+// deletes a gallery.
+//
+// POST /galleries/:id/delete
 func (g *Galleries) Delete(w http.ResponseWriter, r *http.Request) {
 	gallery, err := g.galleryByID(w, r)
 	if err != nil {
