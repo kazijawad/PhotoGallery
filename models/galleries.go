@@ -3,8 +3,11 @@ package models
 import "github.com/jinzhu/gorm"
 
 const (
+	// ErrUserIDRequired is returned when the user ID is missing.
 	ErrUserIDRequired modelError = "models: user ID is required"
-	ErrTitleRequired  modelError = "models: title is required"
+
+	// ErrTitleRequired is returned when the title is missing.
+	ErrTitleRequired modelError = "models: title is required"
 )
 
 // Gallery represents the galleries table in our DB
@@ -15,6 +18,8 @@ type Gallery struct {
 	Title  string `gorm:"not_null"`
 }
 
+// GalleryService is a set of methods used to manipulate and
+// work with the gallery model.
 type GalleryService interface {
 	GalleryDB
 }
@@ -38,6 +43,7 @@ type galleryService struct {
 	GalleryDB
 }
 
+// NewGalleryService is used to create a new gallery service.
 func NewGalleryService(db *gorm.DB) GalleryService {
 	return &galleryService{
 		GalleryDB: &galleryValidator{

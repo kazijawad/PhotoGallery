@@ -7,6 +7,8 @@ import (
 	"github.com/kazijawad/PhotoGallery/models"
 )
 
+// RequireUser is middleware to require user
+// authentication for a route.
 type RequireUser struct {
 	models.UserService
 }

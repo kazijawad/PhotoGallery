@@ -2,12 +2,16 @@ package models
 
 import "github.com/jinzhu/gorm"
 
+// Services represents all our indivudal services and
+// our DB. It is mostly a container resource.
 type Services struct {
 	db      *gorm.DB
 	User    UserService
 	Gallery GalleryService
 }
 
+// NewServices is used to create a new services container
+// and open a connection to our DB.
 func NewServices(connectionInfo string) (*Services, error) {
 	db, err := gorm.Open("postgres", connectionInfo)
 	if err != nil {

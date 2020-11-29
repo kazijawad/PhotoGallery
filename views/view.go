@@ -9,16 +9,25 @@ import (
 )
 
 var (
-	LayoutDir   string = "views/layout/"
+	// LayoutDir is the directory for all layout files.
+	LayoutDir string = "views/layout/"
+
+	// TemplateDir is the directory for all template files.
 	TemplateDir string = "views/"
+
+	// TemplateExt is the extension for all template files.
 	TemplateExt string = ".gohtml"
 )
 
+// View encapsulates an HTML template
+// to account for different layouts.
 type View struct {
 	Template *template.Template
 	Layout   string
 }
 
+// NewView is used to create a new View by generating
+// a template from the given layout and files.
 func NewView(layout string, files ...string) *View {
 	addTemplatePath(files)
 	addTemplateExt(files)
@@ -33,6 +42,7 @@ func NewView(layout string, files ...string) *View {
 	}
 }
 
+// Render is used to render the view with the predefined layout.
 func (v *View) Render(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "text/html")
 	switch data.(type) {
@@ -70,7 +80,7 @@ func layoutFiles() []string {
 
 // addTemplatePath takes in a slice of strings
 // representing file paths for templates, and it prepends
-// the TemplateDir directory to each string in the slice
+// the TemplateDir directory to each string in the slice.
 //
 // Eg the input {"home"} would result in the output
 // {"views/home"} if TemplateDir == "views/"
@@ -82,7 +92,7 @@ func addTemplatePath(files []string) {
 
 // addTemplateExt takes in a slice of strings
 // representing file paths for templates and it appends
-// the TemplateExt extension to each string in the slice
+// the TemplateExt extension to each string in the slice.
 //
 // Eg the input {"home"} would result in the output
 // {"home.gohtml"} if TemplateExt == ".gohtml"

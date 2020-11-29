@@ -7,7 +7,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/jinzhu/gorm"
+
+	// Postgres drivers must be imported for them to be registered with database/sql.
+	// More info here: https://www.calhoun.io/why-we-import-sql-drivers-with-the-blank-identifier/
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+
 	"github.com/kazijawad/PhotoGallery/hash"
 	"github.com/kazijawad/PhotoGallery/rand"
 )
@@ -59,6 +63,10 @@ const (
 	ErrRememberTooShort modelError = "models: remember token must be at least 32 bytes"
 )
 
+// User represents the user model stored in our database
+// This is used for user accounts, storing both an email
+// address and a password so users can log in and gain
+// access to their content.
 type User struct {
 	gorm.Model
 	Name         string
@@ -110,6 +118,7 @@ type userService struct {
 	UserDB
 }
 
+// NewUserService is used to create a new user service.
 func NewUserService(db *gorm.DB) UserService {
 	ug := &userGorm{db}
 	hmac := hash.NewHMAC(hmacSecretKey)
