@@ -26,11 +26,12 @@ type GalleryForm struct {
 
 // Galleries is the controller related to the Galleries viewmodel.
 type Galleries struct {
-	New      *views.View
-	ShowView *views.View
-	EditView *views.View
-	gs       models.GalleryService
-	r        *mux.Router
+	New       *views.View
+	ShowView  *views.View
+	EditView  *views.View
+	IndexView *views.View
+	gs        models.GalleryService
+	r         *mux.Router
 }
 
 // NewGalleries is used to create a new Galleries controller.
@@ -39,11 +40,12 @@ type Galleries struct {
 // initial setup.
 func NewGalleries(gs models.GalleryService, r *mux.Router) *Galleries {
 	return &Galleries{
-		New:      views.NewView("bootstrap", "galleries/new"),
-		ShowView: views.NewView("bootstrap", "galleries/show"),
-		EditView: views.NewView("bootstrap", "galleries/edit"),
-		gs:       gs,
-		r:        r,
+		New:       views.NewView("bootstrap", "galleries/new"),
+		ShowView:  views.NewView("bootstrap", "galleries/show"),
+		EditView:  views.NewView("bootstrap", "galleries/edit"),
+		IndexView: views.NewView("bootstrap", "galleries/index"),
+		gs:        gs,
+		r:         r,
 	}
 }
 
@@ -176,6 +178,23 @@ func (g *Galleries) Delete(w http.ResponseWriter, r *http.Request) {
 	// page that lists all galleries this user owns, but for
 	// now a success message will suffice.
 	fmt.Fprintln(w, "Successfully deleted!")
+}
+
+// Index is used to render all the galleries for the
+// given user.
+//
+// GET /galleries
+func (g *Galleries) Index(w http.ResponseWriter, r *http.Request) {
+	user := context.User(r.Context())
+	galleries, err := g.gs.ByUserID(user.ID)
+	if err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	var vd views.Data
+	vd.Yield = galleries
+	g.IndexView.Render(w, vd)
 }
 
 // galleryByID will parse the "id" variable from the
