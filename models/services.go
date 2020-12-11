@@ -8,6 +8,7 @@ type Services struct {
 	db      *gorm.DB
 	User    UserService
 	Gallery GalleryService
+	Image   ImageService
 }
 
 // NewServices is used to create a new services container
@@ -22,6 +23,7 @@ func NewServices(connectionInfo string) (*Services, error) {
 		db:      db,
 		User:    NewUserService(db),
 		Gallery: NewGalleryService(db),
+		Image:   NewImageService(),
 	}, nil
 }
 
