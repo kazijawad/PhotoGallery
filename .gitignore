@@ -16,3 +16,6 @@
 
 # macOS files
 .DS_STORE
+
+# Ignore gallery images directory
+images/**
