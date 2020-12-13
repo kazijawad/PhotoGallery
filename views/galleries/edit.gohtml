@@ -37,20 +37,6 @@
 </div>
 {{end}}
 
-{{define "editGalleryForm"}}
-<form class="form-horizontal" action="/galleries/{{.ID}}/update" method="POST">
-    <div class="form-group">
-        <label class="col-md-1 control-label" for="title">Title</label>
-        <div class="col-md-10">
-            <input id="title" class="form-control" name="title" placeholder="What is the title of your gallery?" type="text" value="{{.Title}}">
-        </div>
-        <div class="col-md-1">
-            <button class="btn btn-primary" type="submit">Update</button>
-        </div>
-    </div>
-</form>
-{{end}}
-
 {{define "galleryImages"}}
 {{range .ImageSplitN 6}}
     <div class="col-md-2">
@@ -64,8 +50,35 @@
 {{end}}
 {{end}}
 
+{{define "editGalleryForm"}}
+<form class="form-horizontal" action="/galleries/{{.ID}}/update" method="POST">
+    {{csrfField}}
+    <div class="form-group">
+        <label class="col-md-1 control-label" for="title">Title</label>
+        <div class="col-md-10">
+            <input id="title" class="form-control" name="title" placeholder="What is the title of your gallery?" type="text" value="{{.Title}}">
+        </div>
+        <div class="col-md-1">
+            <button class="btn btn-primary" type="submit">Update</button>
+        </div>
+    </div>
+</form>
+{{end}}
+
+{{define "deleteGalleryForm"}}
+<form class="form-horizontal" action="/galleries/{{.ID}}/delete" method="POST">
+    {{csrfField}}
+    <div class="form-group">
+        <div class="col-md-10 col-md-offset-1">
+            <button class="btn btn-danger" type="submit">Delete</button>
+        </div>
+    </div>
+</form>
+{{end}}
+
 {{define "uploadImageForm"}}
 <form class="form-horizontal" action="/galleries/{{.ID}}/images" method="POST" enctype="multipart/form-data">
+    {{csrfField}}
     <div class="form-group">
         <label class="col-md-1 control-label" for="images">
             Add Images
@@ -83,18 +96,9 @@
 </form>
 {{end}}
 
-{{define "deleteGalleryForm"}}
-<form class="form-horizontal" action="/galleries/{{.ID}}/delete" method="POST">
-    <div class="form-group">
-        <div class="col-md-10 col-md-offset-1">
-            <button class="btn btn-danger" type="submit">Delete</button>
-        </div>
-    </div>
-</form>
-{{end}}
-
 {{define "deleteImageForm"}}
 <form action="/galleries/{{.GalleryID}}/images/{{.Filename}}/delete" method="POST">
+    {{csrfField}}
     <button class="btn btn-default btn-delete" type="submit">
         Delete
     </button>

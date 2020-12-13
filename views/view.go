@@ -2,11 +2,13 @@ package views
 
 import (
 	"bytes"
+	"errors"
 	"html/template"
 	"io"
 	"net/http"
 	"path/filepath"
 
+	"github.com/gorilla/csrf"
 	"github.com/kazijawad/PhotoGallery/context"
 )
 
@@ -34,7 +36,11 @@ func NewView(layout string, files ...string) *View {
 	addTemplatePath(files)
 	addTemplateExt(files)
 	files = append(files, layoutFiles()...)
-	t, err := template.ParseFiles(files...)
+	t, err := template.New("").Funcs(template.FuncMap{
+		"csrfField": func() (template.HTML, error) {
+			return "", errors.New("csrfField is not implemented")
+		},
+	}).ParseFiles(files...)
 	if err != nil {
 		panic(err)
 	}
@@ -59,9 +65,15 @@ func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) 
 
 	vd.User = context.User(r.Context())
 	var buf bytes.Buffer
-	err := v.Template.ExecuteTemplate(&buf, v.Layout, vd)
+	csrfField := csrf.TemplateField(r)
+	tpl := v.Template.Funcs(template.FuncMap{
+		"csrfField": func() template.HTML {
+			return csrfField
+		},
+	})
+	err := tpl.ExecuteTemplate(&buf, v.Layout, vd)
 	if err != nil {
-		http.Error(w, "Something went wrong. If the problem persists, please email us", http.StatusInternalServerError)
+		http.Error(w, "Something went wrong. If the problem persists, please email us.", http.StatusInternalServerError)
 		return
 	}
 
