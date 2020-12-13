@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/kazijawad/PhotoGallery/context"
 	"github.com/kazijawad/PhotoGallery/models"
@@ -54,6 +55,12 @@ type RequireUser struct{}
 // login page if they are not.
 func (mw *RequireUser) ApplyFn(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		if strings.HasPrefix(path, "/assets/") || strings.HasPrefix(path, "/images/") {
+			next(w, r)
+			return
+		}
+
 		user := context.User(r.Context())
 		if user == nil {
 			http.Redirect(w, r, "/login", http.StatusFound)
