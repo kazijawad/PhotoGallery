@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"net/url"
 	"path/filepath"
 
 	"github.com/gorilla/csrf"
@@ -69,6 +70,9 @@ func (v *View) Render(w http.ResponseWriter, r *http.Request, data interface{}) 
 	tpl := v.Template.Funcs(template.FuncMap{
 		"csrfField": func() template.HTML {
 			return csrfField
+		},
+		"pathEscape": func(s string) string {
+			return url.PathEscape(s)
 		},
 	})
 	err := tpl.ExecuteTemplate(&buf, v.Layout, vd)
