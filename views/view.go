@@ -41,6 +41,9 @@ func NewView(layout string, files ...string) *View {
 		"csrfField": func() (template.HTML, error) {
 			return "", errors.New("csrfField is not implemented")
 		},
+		"pathEscape": func(s string) string {
+			return url.PathEscape(s)
+		},
 	}).ParseFiles(files...)
 	if err != nil {
 		panic(err)
