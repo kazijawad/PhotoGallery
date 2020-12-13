@@ -31,10 +31,21 @@
                 {{end}}
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/login">Log In</a></li>
-                <li><a href="/signup">Sign Up</a></li>
+                {{if .User}}
+                    <li>{{template "logoutForm"}}</li>
+                {{else}}
+                    <li><a href="/login">Log In</a></li>
+                    <li><a href="/signup">Sign Up</a></li>
+                {{end}}
             </ul>
         </div>
     </div>
 </nav>
+{{end}}
+
+{{define "logoutForm"}}
+<form class="navbar-form navbar-left" action="/logout" method="POST">
+    {{csrfField}}
+    <button class="btn btn-default" type="submit">Log Out</button>
+</form>
 {{end}}

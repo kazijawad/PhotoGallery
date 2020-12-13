@@ -3,7 +3,9 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/kazijawad/PhotoGallery/context"
 	"github.com/kazijawad/PhotoGallery/models"
 	"github.com/kazijawad/PhotoGallery/rand"
 	"github.com/kazijawad/PhotoGallery/views"
@@ -119,6 +121,26 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/galleries", http.StatusFound)
+}
+
+// Logout is used to delete a user's session cookie
+// and invalidate their current remember token, which will
+// sign the current user out.
+//
+// POST /logout
+func (u *Users) Logout(w http.ResponseWriter, r *http.Request) {
+	cookie := http.Cookie{
+		Name:     "remember_token",
+		Value:    "",
+		Expires:  time.Now(),
+		HttpOnly: true,
+	}
+	http.SetCookie(w, &cookie)
+	user := context.User(r.Context())
+	token, _ := rand.RememberToken()
+	user.Remember = token
+	u.us.Update(user)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 // CookieTest is used to display cookies set on the current user.
