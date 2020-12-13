@@ -55,15 +55,20 @@
 {{range .ImageSplitN 6}}
     <div class="col-md-2">
         {{range .}}
-            <a href="{{.}}">
-                <img class="thumbnail" src="{{.}}">
+            <a href="{{.Path}}" target="_blank" rel="noopener noreferrer">
+                <img class="thumbnail" src="{{.Path}}">
             </a>
+            {{template "deleteImageForm" .}}
         {{end}}
     </div>
 {{end}}
 <style>
     .thumbnail {
         width: 100%;
+        margin-bottom: 6px;
+    }
+    .btn-delete {
+        margin-bottom: 6px;
     }
 </style>
 {{end}}
@@ -94,5 +99,13 @@
             <button class="btn btn-danger" type="submit">Delete</button>
         </div>
     </div>
+</form>
+{{end}}
+
+{{define "deleteImageForm"}}
+<form action="/galleries/{{.GalleryID}}/images/{{.Filename}}/delete" method="POST">
+    <button class="btn btn-default btn-delete" type="submit">
+        Delete
+    </button>
 </form>
 {{end}}
