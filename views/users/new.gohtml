@@ -8,7 +8,7 @@
                 </h3>
             </div>
             <div class="panel-body">
-                {{template "signupForm"}}
+                {{template "signupForm" .}}
             </div>
         </div>
     </div>
@@ -22,13 +22,13 @@
         <label for="name">
             Name
         </label>
-        <input type="text" id="name" class="form-control" name="name" placeholder="Full Name">
+        <input type="text" id="name" class="form-control" name="name" placeholder="Full Name" value="{{.Name}}">
     </div>
     <div class="form-group">
         <label for="email">
             Email address
         </label>
-        <input type="email" id="email" class="form-control" name="email" placeholder="Email">
+        <input type="email" id="email" class="form-control" name="email" placeholder="Email" value="{{.Email}}">
     </div>
     <div class="form-group">
         <label for="password">Password</label>
