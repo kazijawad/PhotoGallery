@@ -45,7 +45,6 @@ func main() {
 
 	// Static Routes
 	r.Handle("/", staticC.Home).Methods("GET")
-	r.Handle("/contact", staticC.Contact).Methods("GET")
 
 	// User Routes
 	r.HandleFunc("/signup", usersC.New).Methods("GET")

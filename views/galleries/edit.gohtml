@@ -17,7 +17,7 @@
             Images
         </label>
     </div>
-    <div class="col-md-10">
+    <div class="col-md-10 edit-images">
         {{template "galleryImages" .}}
     </div>
 </div>
@@ -28,7 +28,6 @@
 </div>
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
-        <h3>Dangerous Buttons...</h3>
         <hr>
     </div>
     <div class="col-md-12">
@@ -80,7 +79,7 @@
 <form class="form-horizontal" action="/galleries/{{.ID}}/images" method="POST" enctype="multipart/form-data">
     {{csrfField}}
     <div class="form-group">
-        <label class="col-md-1 control-label" for="images">
+        <label class="col-md-1 control-label upload-text" for="images">
             Add Images
         </label>
         <div class="col-md-10">

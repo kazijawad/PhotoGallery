@@ -1,7 +1,3 @@
-footer {
-    padding-top: 60px;
-}
-
 .thumbnail {
     width: 100%;
     margin-bottom: 6px;
@@ -9,4 +5,13 @@ footer {
 
 .btn-delete {
     margin-bottom: 6px;
+}
+
+.edit-images {
+    margin-bottom: 16px;
+    padding-left: 0;
+}
+
+.upload-text {
+    padding-top: 0 !important;
 }
